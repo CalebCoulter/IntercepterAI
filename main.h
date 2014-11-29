@@ -41,28 +41,27 @@ private:
 
 char rand_color_gen(int num_of_colors);
 
-
 class Board{
 public:
     Node * board;
    //Input intended to create a square board of user selected size and fill
    //the board with random colors. The number of colors is specified by user.
     Board(int size, int num_of_colors){ 
-        Node game_board[size][size];
+        width= size;
+        Node game_board[size*size];
         for(int i=0; i<size; i++){
             for(int j=0; j<size; j++){
-                game_board[i][j].color = rand_color_gen(num_of_colors);
+                game_board[i*size+j].color = rand_color_gen(num_of_colors);
                 
             }
         }
-        *board=game_board[size][size];
+        
        
     }
-   //char getColor(int y, int x){
-     //
-       // return (board + y)[x].color;   
-  // }
-   
+      char getColor(int y, int x){
+     
+        return (board + y*width + x)->color;   
+   }
     //constructor-take an array and dimensions
 //    Board(const int w, int h, Node nodes[5][5]){
 //            width=w;
@@ -193,7 +192,7 @@ void print_board(Board b){
     for(int i=0; i<b.height; i++){
         cout << i+1 << "|";
         for(int j=0; j<b.width; j++){
-            cout << "\t"; //<< b.getColor(j, i);
+            cout << "\t" << b.getColor(j, i);
         }
         cout << endl << endl;
     }
