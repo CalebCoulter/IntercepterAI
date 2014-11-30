@@ -221,7 +221,32 @@ int main(int argc, char** argv) {
     return 0;
 }
 char * AI_visitNeighbors(int x, int y, char b[5][5]){
-    return NULL;
+    char list[4];
+    if (y>0){
+        list[0]=b[x][y-1];   
+    }
+    else{
+        list[0]='n';   
+    }
+    if (y<4){
+        list[1]=b[x][y+1];   
+    }
+    else{
+        list[1]='n';   
+    }
+    if (x>0){
+        list[2]=b[x-1][y];   
+    }
+    else{
+        list[2]='n';   
+    }
+    if (x<4){
+        list[0]=b[x+1][y];   
+    }
+    else{
+        list[0]='n';   
+    }
+    return list;
 }
 
 void AI_predict_playermove(int x, int y, char b[5][5]){
@@ -254,7 +279,7 @@ void default_playermove(int x, int y, char b[5][5]){
         //retry_move = 0;
         cin >> move;
         if (move != 'u' && move != 'd' && move != 'l' && move != 'r'){
-            retry_move = 1;
+           // retry_move = 1;
             cout << "That is not a valid move, try again:";
         }
         else{
