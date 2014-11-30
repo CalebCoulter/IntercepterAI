@@ -6,7 +6,7 @@
 
 #include <cstdlib>
 #include <iostream>
-
+#include <vector>
 using namespace std;
 
 
@@ -165,6 +165,7 @@ void print_board(Board b);
 void default_print_board(char b[5][5]);
 void default_playermove(char b[5][5]);
 bool game_over = 0;
+std::vector<char> playerBuffer;
 
 char default_playboard[5][5] ={{'I','0','0','0','0'},
                                    {'0','0','0','0','0'},
@@ -244,6 +245,7 @@ void default_playermove(char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord-1][x_coord] = 'X';
                 cout <<"player moved : "<< b[y_coord-1][x_coord]<< "\n";
+                playerBuffer.push_back(b[y_coord-1][x_coord]);
                 }
                 else{
                     cout << "that is not a valid move, try again:";
@@ -255,6 +257,7 @@ void default_playermove(char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord+1][x_coord] = 'X';
                 cout <<"player moved : "<< b[y_coord+1][x_coord]<< "\n";
+                playerBuffer.push_back(b[y_coord+1][x_coord]);
                 }
                 else{
                     cout << "that is not a valid move, try again:";
@@ -266,6 +269,7 @@ void default_playermove(char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord][x_coord-1] = 'X';
                 cout <<"player moved : "<< b[y_coord][x_coord-1]<< "\n";
+                playerBuffer.push_back(b[y_coord][x_coord-1]);
             }
                 else{
                     cout << "that is not a valid move, try again:";
@@ -278,6 +282,7 @@ void default_playermove(char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord][x_coord+1] = 'X';
                 cout <<"player moved : "<< b[y_coord][x_coord+1]<< "\n";
+                playerBuffer.push_back(b[y_coord-1][x_coord+1]);
                 }
                 else{
                     cout << "that is not a valid move, try again:";
