@@ -41,11 +41,11 @@ private:
 
 char rand_color_gen(int num_of_colors);
 
+
+
 class Board{
 public:
-    int width;
-    int height;
-    int num_of_colors;
+    char color;
     Node * board;
    //Input intended to create a square board of user selected size and fill
    //the board with random colors. The number of colors is specified by user.
@@ -55,20 +55,19 @@ public:
         for(int i=0; i<size; i++){
             for(int j=0; j<size; j++){
                 game_board[i*size+j].color = rand_color_gen(num_of_colors);
-                //cout << game_board[i*size+j].color;
+                
             }
-            
         }
-        cout << game_board[size*size-1].color<< "\n";
-        board=game_board;
-        cout << board[size*size-1].color << "\n" << "hmm";
-        cout << board[width*width-1].color;
+        
+       
     }
-      char getColor(int x, int y){
-       // cout <<y<<" "<< x << " " << y*width+x;
-       cout << board[width*width-1].color;
-        return board[y*width + x-1].color;   
+      char getColor(int y, int x){
+        //return (board + y*width + x)->color;
+        
    }
+      char getColor(){
+          return color;
+      }
     //constructor-take an array and dimensions
 //    Board(const int w, int h, Node nodes[5][5]){
 //            width=w;
@@ -147,7 +146,9 @@ public:
 //            }//break the line. Delimiting would make this look icky
 //        board= board + "/n";//newline!
 //        };
-    
+    int width;
+    int height;
+    int num_of_colors;
 private:
     //Node boardArray[][];
 //    int width=0;
@@ -160,28 +161,158 @@ private:
  * PROTOTYPES
  */
 
-
 void print_board(Board b);
+void default_print_board(char b[5][5]);
+void default_playermove(char b[5][5]);
+bool game_over = 0;
+
+char default_playboard[5][5] ={{'I','0','0','0','0'},
+                                   {'0','0','0','0','0'},
+                                   {'0','0','0','0','0'},
+                                   {'0','0','0','0','0'},
+                                   {'0','0','X','0','0'}};
+    
+    char default_specialboard[5][5] ={{'t','0','t','0','t'},
+                                      {'0','0','0','0','0'},
+                                      {'0','0','0','0','0'},
+                                      {'0','0','0','0','0'},
+                                      {'0','g','0','g','0'}};
 
 int main(int argc, char** argv) {
     srand(time(NULL));
     int board_size = 5;
     int num_of_colors = 3;
     
+    //Board defaultgameboard = Board();
+    
     cout << "Welcome to Interceptor Console Debugger!\n";
-    cout << "Please enter the size of the board: ";
-    cin >> board_size;
-    cout << "How many colors would you like? (1-5): \n";
-    cin >> num_of_colors;
-    cout << "Generating Board...\n";
-    Board gameboard = Board(board_size,num_of_colors);
-    gameboard.height=board_size;
-    gameboard.width=board_size;
-    gameboard.num_of_colors=num_of_colors;
-    print_board(gameboard);
+//    cout << "Please enter the size of the board: ";
+//    cin >> board_size;
+//    cout << "How many colors would you like? (1-5): \n";
+//    cin >> num_of_colors;
+//    cout << "Generating Board...\n";
+//    Board gameboard = Board(board_size,num_of_colors);
+//    gameboard.height=board_size;
+//    gameboard.width=board_size;
+//    gameboard.num_of_colors=num_of_colors;
+//    print_board(gameboard);
+    char default_gameboard[5][5] = {{'r','g','b','r','b'},
+                                   {'b','g','r','r','g'},
+                                   {'b','g','g','g','r'},
+                                   {'g','b','r','r','r'},
+                                   {'r','b','b','b','g'}};
+   
+    while(game_over == 0){
+        default_print_board(default_gameboard);
+        default_playermove(default_gameboard);
+        
+    }
+    
+    
+    
+    
+    
     
     
     return 0;
+}
+
+void default_playermove(char b[5][5]){
+    char move;
+    int x_coord=2;
+    int y_coord=4;
+    bool retry_move = 0;
+    cout << "Player, make your move (u,d,l,r):";
+    do{
+        retry_move = 0;
+        cin >> move;
+        if (move != 'u' && move != 'd' && move != 'l' && move != 'r'){
+            retry_move = 1;
+            cout << "That is not a valid move, try again:";
+        }
+        else{
+            for(int i=0; i<5; i++){
+                for(int j=0; j<5; j++){
+                    if(default_playboard[i][j] == 'X'){
+                        x_coord = j;
+                        y_coord = i;
+                    }
+                }
+            }
+            if(move == 'u'){
+                if (y_coord>0){
+                default_playboard[y_coord][x_coord] = '0';
+                default_playboard[y_coord-1][x_coord] = 'X';
+                cout <<"player moved : "<< b[y_coord-1][x_coord]<< "\n";
+                }
+                else{
+                    cout << "that is not a valid move, try again:";
+                    //default_playermove(b);
+            }
+            }
+            if(move == 'd'){
+                if (y_coord<4){
+                default_playboard[y_coord][x_coord] = '0';
+                default_playboard[y_coord+1][x_coord] = 'X';
+                cout <<"player moved : "<< b[y_coord+1][x_coord]<< "\n";
+                }
+                else{
+                    cout << "that is not a valid move, try again:";
+                    //default_playermove(b);
+            }
+            }
+            if(move == 'l'){
+                if (x_coord>0){
+                default_playboard[y_coord][x_coord] = '0';
+                default_playboard[y_coord][x_coord-1] = 'X';
+                cout <<"player moved : "<< b[y_coord][x_coord-1]<< "\n";
+            }
+                else{
+                    cout << "that is not a valid move, try again:";
+                    //default_playermove(b);
+               
+            }
+            }
+            if(move == 'r'){
+                if (x_coord<4){
+                default_playboard[y_coord][x_coord] = '0';
+                default_playboard[y_coord][x_coord+1] = 'X';
+                cout <<"player moved : "<< b[y_coord][x_coord+1]<< "\n";
+                }
+                else{
+                    cout << "that is not a valid move, try again:";
+                    //default_playermove(b);
+
+            
+            }
+            }
+        }
+    }while(retry_move == 1);
+    
+}
+
+void default_print_board(char b[5][5]){
+    for(int j=0; j<5; j++){
+        cout << "\t" << j+1;
+    }
+    cout << endl;
+    for(int j=0; j<5; j++){
+        cout << "\t" << "_";
+    }
+    cout << endl << endl;
+    
+    for(int i=0; i<5; i++){
+        cout << i+1 << "|";
+        for(int j=0; j<5; j++){
+            if(default_playboard[i][j] == '0')
+                cout << "\t" << b[i][j];
+            else
+                cout << "\t" <<default_playboard[i][j];
+            
+        }
+        cout << endl << endl;
+    }
+    
 }
 
 void print_board(Board b){
@@ -197,7 +328,7 @@ void print_board(Board b){
     for(int i=0; i<b.height; i++){
         cout << i+1 << "|";
         for(int j=0; j<b.width; j++){
-            cout << "\t" << b.getColor(j, i);
+            cout << "\t" << b.getColor();
         }
         cout << endl << endl;
     }
