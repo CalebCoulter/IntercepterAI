@@ -165,10 +165,11 @@ void print_board(Board b);
 void default_print_board(char b[5][5]);
 void default_playermove(int x, int y, char b[5][5]);
 
-void predict_playermove(char b[5][5]);
+void AI_predict_playermove(int x, int y, char b[5][5],int buffer);
 bool game_over = 0;
 int AI_prediction[2];
 std::vector<char> playerBuffer;
+char list[4];
 
 char default_playboard[5][5] ={{'I','0','0','0','0'},
                                    {'0','0','0','0','0'},
@@ -209,6 +210,7 @@ int main(int argc, char** argv) {
     while(game_over == 0){
         default_print_board(default_gameboard);
         default_playermove(2,4,default_gameboard);
+		AI_predict_playermove(2,4,default_gameboard,0);
         
     }
     
@@ -220,53 +222,86 @@ int main(int argc, char** argv) {
     
     return 0;
 }
-char * AI_visitNeighbors(int x, int y, char b[5][5]){
-    char list[4];
-    if (y>0){
+void AI_visitNeighbors(int y, int x, char b[5][5]){
+    //char list[4];
+    if (y>0){//left
         list[0]=b[x][y-1];   
     }
     else{
         list[0]='n';   
     }
-    if (y<4){
+    if (y<4){//right
         list[1]=b[x][y+1];   
     }
     else{
         list[1]='n';   
     }
-    if (x>0){
+    if (x>0){//up
         list[2]=b[x-1][y];   
     }
-    else{
+    else{//down
         list[2]='n';   
     }
     if (x<4){
-        list[0]=b[x+1][y];   
+        list[3]=b[x+1][y];   
     }
     else{
-        list[0]='n';   
+        list[3]='n';   
     }
-    return list;
+    //cout<<"neighbors: "<<list[0]<<" "<<list[1]<<" "<<list[2]<<" "<<list[3]<<"\n";
+    //return list;
 }
 
-void AI_predict_playermove(int x, int y, char b[5][5]){
+void AI_predict_playermove(int x, int y, char b[5][5], int buffer){
     int x_coord=x;
     int y_coord=y;
-    int moves = playerBuffer.size();
+    int moves = playerBuffer.size()-buffer;
+    if(moves>0){
     for(int j=0; j<moves; j++){
-        char * a = AI_visitNeighbors(x_coord,y_coord, b);
+        AI_visitNeighbors(x_coord,y_coord, b);
         char c = playerBuffer.at(j);
-        for (int i=0; i<3; i++){
-            if   (a[i]==c){
-                if (j==moves){
-                     AI_prediction[0]=x;
+        for (int i=0; i<4; i++){
+           
+            if   (list[i]==c){
+                if (j==moves-1){
+                     if (i==0){
+                     AI_prediction[0]=x-1;
                      AI_prediction[1]=y;
-                     cout << "AI predicted player location: "<<x<< " , "<<y<< "\n";
+                    
+                     }
+                     else if (i==1){
+                    AI_prediction[0]=x+1;
+                     AI_prediction[1]=y;
+                     }else if (i==2){
+                     AI_prediction[0]=x;
+                     AI_prediction[1]=y-1;
+                     }else //i==3 
+                    {
+                     AI_prediction[0]=x-1;
+                     AI_prediction[1]=y;
+                    }
+                     
+                     cout << "AI predicted player location: "<<x+1<< " , "<<y+1<< "\n";
+                     break;
                 }
-                else
-                     AI_predict_playermove(x_coord,y_coord,b);
+                else if (i==0){
+                     AI_predict_playermove(x_coord-1,y_coord,b,buffer+1);
+                     break;
+                }
+                else if (i==1){
+                     AI_predict_playermove(x_coord+1,y_coord,b,buffer+1);
+                     break;
+                }else if (i==2){
+                     AI_predict_playermove(x_coord,y_coord-1,b,buffer+1);
+                     break;
+                }else //i==3 
+                {
+                     AI_predict_playermove(x_coord,y_coord+1,b,buffer+1);
+                     break;
+                }break;
             }}
         }
+}
 }
 
 void default_playermove(int x, int y, char b[5][5]){
