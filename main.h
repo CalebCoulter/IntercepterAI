@@ -207,11 +207,12 @@ int main(int argc, char** argv) {
                                    {'b','g','g','g','r'},
                                    {'g','b','r','r','r'},
                                    {'r','b','b','b','g'}};
+    
    
     while(game_over == 0){
         default_print_board(default_gameboard);
         default_playermove(2,4,default_gameboard);
-        std::queue<char> buffer(playerBuffer);
+        buffer=playerBuffer;
 		AI_predict_playermove(2,4,default_gameboard);
         
     }
@@ -258,6 +259,7 @@ void AI_predict_playermove(int x, int y, char b[5][5]){
     int x_coord=x;
     int y_coord=y;
     int moves = buffer.size();
+
     if(moves>0){
     for(int j=0; j<moves; j++){
         AI_visitNeighbors(x_coord,y_coord, b);
@@ -284,7 +286,7 @@ void AI_predict_playermove(int x, int y, char b[5][5]){
                      AI_prediction[1]=y;
                     }
                      
-                     cout << "AI predicted player location: "<<x+1<< " , "<<y+1<< "\n";
+                     cout << "AI predicted player location: "<<AI_prediction[0]+1<< " , "<<AI_prediction[1]+1<< "\n";
                      break;
                 }
                 else if (i==0){
