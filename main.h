@@ -6,7 +6,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <vector>
+#include <queue>
 using namespace std;
 
 
@@ -165,10 +165,11 @@ void print_board(Board b);
 void default_print_board(char b[5][5]);
 void default_playermove(int x, int y, char b[5][5]);
 
-void AI_predict_playermove(int x, int y, char b[5][5],int buffer);
+void AI_predict_playermove(int x, int y, char b[5][5]);
 bool game_over = 0;
 int AI_prediction[2];
-std::vector<char> playerBuffer;
+std::queue<char> playerBuffer;
+std::queue<char> buffer;
 char list[4];
 
 char default_playboard[5][5] ={{'I','0','0','0','0'},
@@ -210,7 +211,8 @@ int main(int argc, char** argv) {
     while(game_over == 0){
         default_print_board(default_gameboard);
         default_playermove(2,4,default_gameboard);
-		AI_predict_playermove(2,4,default_gameboard,0);
+        std::queue<char> buffer(playerBuffer);
+		AI_predict_playermove(2,4,default_gameboard);
         
     }
     
@@ -252,14 +254,15 @@ void AI_visitNeighbors(int y, int x, char b[5][5]){
     //return list;
 }
 
-void AI_predict_playermove(int x, int y, char b[5][5], int buffer){
+void AI_predict_playermove(int x, int y, char b[5][5]){
     int x_coord=x;
     int y_coord=y;
-    int moves = playerBuffer.size()-buffer;
+    int moves = buffer.size();
     if(moves>0){
     for(int j=0; j<moves; j++){
         AI_visitNeighbors(x_coord,y_coord, b);
-        char c = playerBuffer.at(j);
+        char c = buffer.front();
+        buffer.pop();
         for (int i=0; i<4; i++){
            
             if   (list[i]==c){
@@ -285,18 +288,18 @@ void AI_predict_playermove(int x, int y, char b[5][5], int buffer){
                      break;
                 }
                 else if (i==0){
-                     AI_predict_playermove(x_coord-1,y_coord,b,buffer+1);
+                     AI_predict_playermove(x_coord-1,y_coord,b);
                      break;
                 }
                 else if (i==1){
-                     AI_predict_playermove(x_coord+1,y_coord,b,buffer+1);
+                     AI_predict_playermove(x_coord+1,y_coord,b);
                      break;
                 }else if (i==2){
-                     AI_predict_playermove(x_coord,y_coord-1,b,buffer+1);
+                     AI_predict_playermove(x_coord,y_coord-1,b);
                      break;
                 }else //i==3 
                 {
-                     AI_predict_playermove(x_coord,y_coord+1,b,buffer+1);
+                     AI_predict_playermove(x_coord,y_coord+1,b);
                      break;
                 }break;
             }}
@@ -332,7 +335,7 @@ void default_playermove(int x, int y, char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord-1][x_coord] = 'X';
                 cout <<"player moved : "<< b[y_coord-1][x_coord]<< "\n";
-                playerBuffer.push_back(b[y_coord-1][x_coord]);
+                playerBuffer.push(b[y_coord-1][x_coord]);
                 }
                 else{
                     cout << "that is not a valid move, try again:";
@@ -344,7 +347,7 @@ void default_playermove(int x, int y, char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord+1][x_coord] = 'X';
                 cout <<"player moved : "<< b[y_coord+1][x_coord]<< "\n";
-                playerBuffer.push_back(b[y_coord+1][x_coord]);
+                playerBuffer.push(b[y_coord+1][x_coord]);
                 }
                 else{
                     cout << "that is not a valid move, try again:";
@@ -356,7 +359,7 @@ void default_playermove(int x, int y, char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord][x_coord-1] = 'X';
                 cout <<"player moved : "<< b[y_coord][x_coord-1]<< "\n";
-                playerBuffer.push_back(b[y_coord][x_coord-1]);
+                playerBuffer.push(b[y_coord][x_coord-1]);
             }
                 else{
                     cout << "that is not a valid move, try again:";
@@ -369,7 +372,7 @@ void default_playermove(int x, int y, char b[5][5]){
                 default_playboard[y_coord][x_coord] = '0';
                 default_playboard[y_coord][x_coord+1] = 'X';
                 cout <<"player moved : "<< b[y_coord][x_coord+1]<< "\n";
-                playerBuffer.push_back(b[y_coord][x_coord+1]);
+                playerBuffer.push(b[y_coord][x_coord+1]);
                 cout << playerBuffer.back();
                 }
                 else{
