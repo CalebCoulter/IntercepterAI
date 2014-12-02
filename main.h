@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <queue>
+#include <vector>
 using namespace std;
 
 
@@ -167,10 +168,11 @@ void default_playermove(int x, int y, char b[5][5]);
 
 void AI_predict_playermove(int x, int y, char b[5][5]);
 bool game_over = 0;
-int AI_prediction[2];
+//int AI_prediction[2];
 std::queue<char> playerBuffer;
 std::queue<char> buffer;
 char list[4];
+std::queue< int * > AIList;
 
 char default_playboard[5][5] ={{'I','0','0','0','0'},
                                    {'0','0','0','0','0'},
@@ -259,7 +261,7 @@ void AI_predict_playermove(int x, int y, char b[5][5]){
     int x_coord=x;
     int y_coord=y;
     int moves = buffer.size();
-
+    int AI_prediction[2];
     if(moves>0){
     for(int j=0; j<moves; j++){
         AI_visitNeighbors(x_coord,y_coord, b);
@@ -268,42 +270,57 @@ void AI_predict_playermove(int x, int y, char b[5][5]){
         for (int i=0; i<4; i++){
            
             if   (list[i]==c){
+                
                 if (j==moves-1){
-                     if (i==0){
-                     AI_prediction[0]=x-1;
-                     AI_prediction[1]=y;
-                    
-                     }
-                     else if (i==1){
+                    // if (i==0){
+                    // AI_prediction[0]=x-1;
+                    // AI_prediction[1]=y;
+                    //AIList.push(AI_prediction);
+                    //cout<< i;
+                     //}
+                      if (i==1){
                     AI_prediction[0]=x+1;
                      AI_prediction[1]=y;
-                     }else if (i==2){
+                    AIList.push(AI_prediction);
+                    cout<< i;
+                     } if (i==2){
                      AI_prediction[0]=x;
                      AI_prediction[1]=y-1;
-                     }else //i==3 
+                    AIList.push(AI_prediction);
+                    cout<< i;
+                     }if (i==3) //i==3 
                     {
                      AI_prediction[0]=x-1;
                      AI_prediction[1]=y;
+                    AIList.push(AI_prediction);
+                    cout<< i;
                     }
                      
-                     cout << "AI predicted player location: "<<AI_prediction[0]+1<< " , "<<AI_prediction[1]+1<< "\n";
+                     cout << "AI predicted player location: ";
+                     int a=AIList.size();
+                     for (int i = 0; i<a;i++){
+                      cout << AIList.front()[0]+1<<","<< AIList.front()[1]+1<<" ";
+                      AIList.pop();
+                     }
+                     cout << "\n";
+                    
                      break;
                 }
-                else if (i==0){
+                else{ if (i==0){
                      AI_predict_playermove(x_coord-1,y_coord,b);
-                     break;
+                     
                 }
-                else if (i==1){
+                 if (i==1){
                      AI_predict_playermove(x_coord+1,y_coord,b);
-                     break;
-                }else if (i==2){
+                     
+                } if (i==2){
                      AI_predict_playermove(x_coord,y_coord-1,b);
-                     break;
-                }else //i==3 
+                     
+                }if(i==3) //i==3 
                 {
                      AI_predict_playermove(x_coord,y_coord+1,b);
-                     break;
-                }break;
+                     
+                }}break;
             }}
         }
 }
