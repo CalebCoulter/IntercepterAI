@@ -1,6 +1,5 @@
 /* 
  * File:   main.cpp
- * Author: Jordan
  *
  */
 
@@ -8,6 +7,10 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <windows.h>
+#include <iomanip>
+#include <stdio.h>
+#include <cmath>
 using namespace std;
 
 
@@ -165,13 +168,20 @@ private:
 void print_board(Board b);
 void default_print_board(char b[5][5]);
 void default_playermove(int x, int y, char b[5][5]);
+void AI_move(char b[5][5], int predict[][2]);
 
 void AI_predict_playermove(int x, int y, char b[5][5]);
+
+bool target_activated = 0;
 bool game_over = 0;
 //int AI_prediction[2];
 std::queue<char> playerBuffer;
 std::queue<char> buffer;
 char list[4];
+int AILoc[2];
+
+//result of AI move algorithm
+ int result[2];
 std::queue< int * > AIList;
 
 char default_playboard[5][5] ={{'I','0','0','0','0'},
@@ -185,11 +195,52 @@ char default_playboard[5][5] ={{'I','0','0','0','0'},
                                       {'0','0','0','0','0'},
                                       {'0','0','0','0','0'},
                                       {'0','g','0','g','0'}};
+  
+void set_console_color(char clr){
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); 
+    
+    int c;
+    //12 = r, 10 = g, 9 = b, y = 14, p = 13, White = 15
+    switch(clr){
+        case('r'): c = 12;
+        break;
+        case('g'): c = 10;
+        break;
+        case('b'): c = 9;
+        break;
+        case('y'): c = 14;
+        break;
+        case('p'): c = 13;
+        break;
+        default: c = 15;
+        break;
+    }
+    SetConsoleTextAttribute(hConsole, c);
+}
+
+void reset_console_color(){
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, 15);
+}
+
+void print_move_history();
 
 int main(int argc, char** argv) {
     srand(time(NULL));
     int board_size = 5;
     int num_of_colors = 3;
+    
+    
+    //SetConsoleTextAttribute(hConsole, 12);
+    //set_console_color('r');
+    
+    
+//    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+//    for(int clr = 1; clr < 255; clr++){
+//    SetConsoleTextAttribute(hConsole, clr);
+//    cout << clr << "This is color output\n";
+//    }
+    
     
     //Board defaultgameboard = Board();
     
@@ -215,11 +266,14 @@ int main(int argc, char** argv) {
         default_print_board(default_gameboard);
         default_playermove(2,4,default_gameboard);
         buffer=playerBuffer;
-		AI_predict_playermove(2,4,default_gameboard);
+        if(game_over != 1){
+                //AI_predict_playermove(2,4,default_gameboard);
+                print_move_history();
+        }
         
     }
     
-    
+    cout << "\n\n===================\n=====GAME OVER=====\n===================\n";
     
     
     
@@ -227,6 +281,24 @@ int main(int argc, char** argv) {
     
     return 0;
 }
+
+void default_AI_predict_move(int x, int y, char b[5][5]){
+    
+}
+
+void print_move_history(){
+    std::queue<char> history;
+    history=playerBuffer;
+    cout << "History of player moves:";
+    for(int i=0; i<buffer.size();i++){
+        cout << history.front();
+        history.pop();
+        //if(i>20)
+           // break;
+    }
+    cout << endl;
+}
+
 void AI_visitNeighbors(int y, int x, char b[5][5]){
     //char list[4];
     if (y>0){//left
@@ -256,6 +328,108 @@ void AI_visitNeighbors(int y, int x, char b[5][5]){
     //cout<<"neighbors: "<<list[0]<<" "<<list[1]<<" "<<list[2]<<" "<<list[3]<<"\n";
     //return list;
 }
+//from the location board, move closer to the given location. Prioritizes longer distances
+//ie 0,0-> 2,4 will move to 0,1
+void getMove(int x, int y, int x2, int y2){
+    int xsum= x+x2;
+    int ysum= y+y2;
+   
+    if (abs(xsum)>abs(ysum)){
+        result[1]=y;
+        if (xsum>0)//go left
+            result[0]=x-1;
+        else 
+            result[0]=x+1;
+    }
+    else
+        result[0]=x;
+        if(ysum>0)
+            result[1]=y-1;
+    else if(y<4)//default, move down
+        
+            result[1]=y+1;
+    else //total default-in case something goes wrong with calculations and it can't move down, it can move up
+        
+            result[1]=y-1;
+        
+}
+void getMoveKnown(int x, int y, int x2, int y2){
+   
+    if (target_activated){//bias towards top, closer to target
+         int xsum= x+x2;
+         int ysum= y+y2-1;
+    if (abs(xsum)>abs(ysum)){
+        result[1]=y;
+        if (xsum>0)//go left
+            result[0]=x-1;
+        else 
+            result[0]=x+1;
+    }
+    else
+        result[0]=x;
+        if(ysum>0)
+        
+        result[1]=y-1;
+    else if(y<4)//default, move down
+        result[1]=y+1;
+    else //total default-in case something goes wrong with calculations and it can't move down, it can move up
+        result[1]=y-1;;
+    }//else, target not activated, bias towards bottom, closer to target
+     int xsum= x+x2;
+         int ysum= y+y2+1;
+    if (abs(xsum)>abs(ysum)){
+        result[1]=y;
+        if (xsum>0)//go left
+            result[0]=x-1;
+        else 
+            result[0]=x+1;;
+    }
+    else
+        result[0]=x;
+        if(ysum>0)
+        
+        result[1]=y-1;
+    else if(y<4)//default, move down
+        result[1]=y+1;
+    else //total default-in case something goes wrong with calculations and it can't move down, it can move up
+        result[1]=y-1;
+    
+}
+
+//AI prediction will return if they have a single predicted location. Otherwise, default behavior
+void AI_move(char b[5][5], int predX, int predY ){
+
+    int x=AILoc[1];
+    int y=AILoc[0];
+    //int coords[2];
+    if (predX>=0){//we have a single prediction, move towards player. 
+      
+      
+       getMoveKnown(x,y,predX,predY);
+        
+    } else{//target unknown, move towards goal
+        if (!target_activated){
+            getMove(x,y,1,2);//move to the center, diagonal from both nodes
+        }
+        else
+           getMove(x,y,3,2);//move towards the goal, diagonal from both nodes
+    }
+     if(default_playboard[result[0]][result[1]] == 'X'){
+                        game_over = 1;
+                    }
+                    if(game_over != 1){
+                        default_playboard[y][x] = '0';
+                        default_playboard[result[1]][result[0]] = 'I';
+                        cout <<"Computer moved moved : "<< b[result[1]][result[0]]<< "\n";
+                        AILoc[1]=result[1];
+                        AILoc[0]=result[0];
+                    }
+
+};
+
+
+
+
 
 void AI_predict_playermove(int x, int y, char b[5][5]){
     int x_coord=x;
@@ -326,6 +500,22 @@ void AI_predict_playermove(int x, int y, char b[5][5]){
 }
 }
 
+void check_target(int y, int x){
+    if(default_playboard[y][x] == 'X' && default_specialboard[y][x] == 't'){
+        target_activated = 1;
+
+        cout << "Player reached target at: " << x+1 << "," << y+1 << "\n";
+    }
+}
+
+void check_goal(int y, int x){
+    if(default_playboard[y][x] == 'X' && default_specialboard[y][x] == 'g' && target_activated == 1){
+        cout << "Player reached goal at: " << x+1 << "," << y+1 << "\n";
+        cout << "\nPlayer wins!!!!\n";
+        game_over = 1;
+    }
+}
+
 void default_playermove(int x, int y, char b[5][5]){
     char move;
     int x_coord=x;
@@ -351,51 +541,79 @@ void default_playermove(int x, int y, char b[5][5]){
             }
             if(move == 'u'){
                 if (y_coord>0){
-                default_playboard[y_coord][x_coord] = '0';
-                default_playboard[y_coord-1][x_coord] = 'X';
-                cout <<"player moved : "<< b[y_coord-1][x_coord]<< "\n";
-                playerBuffer.push(b[y_coord-1][x_coord]);
+                    if(default_playboard[y_coord-1][x_coord] == 'I'){
+                        game_over = 1;
+                    }
+                    if(game_over != 1){
+                        default_playboard[y_coord][x_coord] = '0';
+                        default_playboard[y_coord-1][x_coord] = 'X';
+                        cout <<"player moved : "<< b[y_coord-1][x_coord]<< "\n";
+                        check_target(y_coord-1, x_coord);
+                        check_goal(y_coord-1, x_coord);
+                        playerBuffer.push(b[y_coord-1][x_coord]);
+                    }
                 }
                 else{
-                    cout << "that is not a valid move, try again:";
+                    cout << "that is not a valid move, try again:\n";
                     //default_playermove(b);
             }
             }
             if(move == 'd'){
                 if (y_coord<4){
-                default_playboard[y_coord][x_coord] = '0';
-                default_playboard[y_coord+1][x_coord] = 'X';
-                cout <<"player moved : "<< b[y_coord+1][x_coord]<< "\n";
-                playerBuffer.push(b[y_coord+1][x_coord]);
+                    if(default_playboard[y_coord+1][x_coord] == 'I'){
+                        game_over = 1;
+                    }
+                    if(game_over != 1){
+                        default_playboard[y_coord][x_coord] = '0';
+                        default_playboard[y_coord+1][x_coord] = 'X';
+                        cout <<"player moved : "<< b[y_coord+1][x_coord]<< "\n";
+                        check_target(y_coord+1, x_coord);
+                        check_goal(y_coord+1, x_coord);
+                        playerBuffer.push(b[y_coord+1][x_coord]);
+                    }
                 }
                 else{
-                    cout << "that is not a valid move, try again:";
+                    cout << "that is not a valid move, try again:\n";
                     //default_playermove(b);
             }
             }
             if(move == 'l'){
                 if (x_coord>0){
-                default_playboard[y_coord][x_coord] = '0';
-                default_playboard[y_coord][x_coord-1] = 'X';
-                cout <<"player moved : "<< b[y_coord][x_coord-1]<< "\n";
-                playerBuffer.push(b[y_coord][x_coord-1]);
+                    if(default_playboard[y_coord][x_coord-1] == 'I'){
+                        game_over = 1;
+                    }
+                    if(game_over != 1){
+                        default_playboard[y_coord][x_coord] = '0';
+                        default_playboard[y_coord][x_coord-1] = 'X';
+                        cout <<"player moved : "<< b[y_coord][x_coord-1]<< "\n";
+                        check_target(y_coord, x_coord-1);
+                        check_goal(y_coord, x_coord-1);
+                        playerBuffer.push(b[y_coord][x_coord-1]);
+                    }
             }
                 else{
-                    cout << "that is not a valid move, try again:";
+                    cout << "that is not a valid move, try again:\n";
                     //default_playermove(b);
                
             }
             }
             if(move == 'r'){
                 if (x_coord<4){
-                default_playboard[y_coord][x_coord] = '0';
-                default_playboard[y_coord][x_coord+1] = 'X';
-                cout <<"player moved : "<< b[y_coord][x_coord+1]<< "\n";
-                playerBuffer.push(b[y_coord][x_coord+1]);
-                cout << playerBuffer.back();
+                    if(default_playboard[y_coord][x_coord+1] == 'I'){
+                        game_over = 1;
+                    }
+                    if(game_over != 1){
+                        default_playboard[y_coord][x_coord] = '0';
+                        default_playboard[y_coord][x_coord+1] = 'X';
+                        cout <<"player moved : "<< b[y_coord][x_coord+1]<< "\n";
+                        check_target(y_coord, x_coord+1);
+                        check_goal(y_coord, x_coord+1);
+                        playerBuffer.push(b[y_coord][x_coord+1]);
+                        //cout << "["<<playerBuffer.back()<<"]";
+                    }
                 }
                 else{
-                    cout << "that is not a valid move, try again:";
+                    cout << "that is not a valid move, try again:\n";
                     //default_playermove(b);
 
             
@@ -410,24 +628,45 @@ void default_print_board(char b[5][5]){
     for(int j=0; j<5; j++){
         cout << "\t" << j+1;
     }
-    cout << endl;
+    cout << "\n";
     for(int j=0; j<5; j++){
         cout << "\t" << "_";
     }
-    cout << endl << endl;
+
+    cout << "\n\n";
     
     for(int i=0; i<5; i++){
         cout << i+1 << "|";
         for(int j=0; j<5; j++){
-            if(default_playboard[i][j] == '0')
+            if(default_playboard[i][j] == '0'){ //Prints Color on board as that color
+//                switch(b[i][j]){
+//                    case('r'): set_console_color('r');
+//                    break;
+//                    case('g'): set_console_color('g');
+//                    break;
+//                    case('b'): set_console_color('b');
+//                    break;
+//                    case('y'): set_console_color('y');
+//                    break;
+//                    case('p'): set_console_color('p');
+//                    break;
+//                    default: reset_console_color();
+//                    cout << "WASN'T A COLOR! ERROR!";
+//                    break;
+//                }
                 cout << "\t" << b[i][j];
-            else
-                cout << "\t" <<default_playboard[i][j];
+                
+            }
+            else{
+                cout << "\t" << default_playboard[i][j];
+            }
+            
             
         }
-        cout << endl << endl;
+        cout << "\n" << "\n";
+        
     }
-    
+//    reset_console_color(); //Resets console text back to white after printing
 }
 
 void print_board(Board b){
